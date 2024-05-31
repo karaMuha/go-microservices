@@ -1,17 +1,12 @@
 package server
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/rs/cors"
 )
 
-type HttpServer struct {
-	server *http.Server
-}
-
-func InitHttpServer() HttpServer {
+func InitHttpServer() *http.Server {
 	router := http.NewServeMux()
 
 	c := cors.New(cors.Options{
@@ -25,19 +20,8 @@ func InitHttpServer() HttpServer {
 
 	handler := c.Handler(router)
 
-	server := &http.Server{
+	return &http.Server{
 		Addr:    ":8080",
 		Handler: handler,
-	}
-
-	return HttpServer{
-		server: server,
-	}
-}
-
-func (hs HttpServer) Start() {
-	err := hs.server.ListenAndServe()
-	if err != nil {
-		log.Fatalf("Error while starting HTTP Server: %v", err)
 	}
 }

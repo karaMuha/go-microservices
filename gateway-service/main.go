@@ -1,8 +1,14 @@
 package main
 
-import "gateway/server"
+import (
+	"gateway/server"
+	"log"
+)
 
 func main() {
 	httpServer := server.InitHttpServer()
-	httpServer.Start()
+	err := httpServer.ListenAndServe()
+	if err != nil {
+		log.Fatal("Error while starting http server: %v", err)
+	}
 }
