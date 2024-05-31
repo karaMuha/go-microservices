@@ -1,0 +1,11 @@
+services:
+  gateway-service:
+    build:
+      context: ./gateway-service
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    deploy:
+      mode: replicated
+      replicas: 1
