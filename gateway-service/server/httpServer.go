@@ -1,13 +1,17 @@
 package server
 
 import (
+	"gateway/controllers"
 	"net/http"
 
 	"github.com/rs/cors"
 )
 
 func InitHttpServer() *http.Server {
+	controller := controllers.NewController()
 	router := http.NewServeMux()
+
+	router.HandleFunc("GET /ping", controller.HandlePing)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
