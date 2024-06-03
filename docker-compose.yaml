@@ -9,3 +9,13 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+  authentication-service:
+    build:
+      context: ./authentication-service
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      -
+    deploy:
+      mode: replicated
+      replicas: 1
