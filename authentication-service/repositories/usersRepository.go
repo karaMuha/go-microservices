@@ -20,7 +20,7 @@ func NewUsersRepository(dbHandler *sql.DB) UsersRepositoryInterface {
 func (ur UsersRepository) QueryCreateUser(user *models.User, hashedPassword string) (*models.User, *models.ResponseError) {
 	query := `
 		INSERT INTO
-			users(email, first_name, last_name, password, created_at, updated_at)
+			users(email, first_name, last_name, user_password, created_at, updated_at)
 		VALUES
 			($1, $2, $3, $4, $5, $6)
 		RETURNING id`
@@ -107,7 +107,7 @@ func (ur UsersRepository) QueryGetUserByEmail(email string) (*models.User, *mode
 			id,
 			first_name,
 			last_name,
-			password,
+			user_password,
 			is_active,
 			created_at,
 			updated_at
