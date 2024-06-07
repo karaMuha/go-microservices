@@ -36,6 +36,10 @@ func (us UsersService) GetUserByEmail(email string) (*models.User, *models.Respo
 	return us.usersRepository.QueryGetUserByEmail(email)
 }
 
+func (us UsersService) GetAllUsers() ([]*models.User, *models.ResponseError) {
+	return us.usersRepository.QueryGetAllUsers()
+}
+
 func (us UsersService) UpdateUser(user *models.User) *models.ResponseError {
 	return us.usersRepository.QueryUpdateUser(user)
 }

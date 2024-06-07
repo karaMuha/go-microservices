@@ -7,6 +7,8 @@ type UsersServiceInterface interface {
 
 	GetUserByEmail(email string) (*models.User, *models.ResponseError)
 
+	GetAllUsers() ([]*models.User, *models.ResponseError)
+
 	UpdateUser(user *models.User) *models.ResponseError
 
 	DeleteUser(id string) *models.ResponseError
