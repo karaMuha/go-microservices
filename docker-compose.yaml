@@ -5,7 +5,36 @@ services:
       dockerfile: ./Dockerfile
     restart: always
     ports:
-      - "8080:8080"
+      - "8080:80"
     deploy:
       mode: replicated
       replicas: 1
+
+  authentication-service:
+    build:
+      context: ./authentication-service
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - "8081:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - DBCONNECTION: "host=postgres port=5432 user=postgres password=postgres dbname=auth_micro_db sslmode=disable"
+
+  postgres:
+    image: 'postgres:16.3-alpine'
+    ports:
+      -"5432:5432"
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - POSTGRES_USEER: postgres
+      - POSTGRES_PASSWORD: postgres
+      - POSTGRES_DB: auth_micro_db
+    volumes:
+      - ./db-data/postgres/:/var/lib/postgresql/data
+      - ./dbScripts/authService/public_schema.sql:/docker-entrypoint-initdb.d/public_schema.sql
