@@ -20,7 +20,7 @@ func main() {
 	config := config.ReadEnvFile(appEnvironment)
 
 	log.Println("Initializing database")
-	db := server.InitDatabase(config)
+	db := server.ConnectToDb(config)
 
 	log.Println("Initializinh http server")
 	httpServer := server.InitHttpServer(config, db)
