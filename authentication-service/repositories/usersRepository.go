@@ -17,7 +17,7 @@ func NewUsersRepository(dbHandler *sql.DB) UsersRepositoryInterface {
 	}
 }
 
-func (ur UsersRepository) QueryCreateUser(user *models.User, hashedPassword string) (*models.User, *models.ResponseError) {
+func (ur UsersRepository) QueryCreateUser(user *models.User, hashedPassword string) *models.ResponseError {
 	query := `
 		INSERT INTO
 			users(email, first_name, last_name, user_password, created_at, updated_at)
@@ -30,16 +30,13 @@ func (ur UsersRepository) QueryCreateUser(user *models.User, hashedPassword stri
 	err := row.Scan(&userId)
 
 	if err != nil {
-		return nil, &models.ResponseError{
+		return &models.ResponseError{
 			Message: err.Error(),
 			Status:  http.StatusInternalServerError,
 		}
 	}
 
-	user.ID = userId
-	user.Active = true
-
-	return user, nil
+	return nil
 }
 
 func (ur UsersRepository) QueryGetAllUsers() ([]*models.User, *models.ResponseError) {
