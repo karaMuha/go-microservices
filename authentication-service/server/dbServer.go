@@ -7,7 +7,6 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-	"github.com/spf13/viper"
 )
 
 func initDatabase(dbDriver string, dbConnection string) (*sql.DB, error) {
@@ -36,10 +35,10 @@ func initDatabase(dbDriver string, dbConnection string) (*sql.DB, error) {
 	return db, nil
 }
 
-func ConnectToDb(config *viper.Viper) *sql.DB {
+func ConnectToDb() *sql.DB {
 	var count int
 	dbConnection := os.Getenv("DBCONNECTION")
-	dbDriver := config.GetString("DB_DRIVER")
+	dbDriver := os.Getenv("DB_DRIVER")
 
 	for {
 		dbHandler, err := initDatabase(dbDriver, dbConnection)
@@ -50,13 +49,14 @@ func ConnectToDb(config *viper.Viper) *sql.DB {
 
 		log.Println("Postgres container not yet ready...")
 		count++
+		log.Println(count)
 
 		if count > 10 {
 			log.Fatalf("Error while initializing database %v", err)
 			return nil
 		}
 
-		log.Println("Backing off for two seconds...")
-		time.Sleep(2 * time.Second)
+		log.Println("Backing off for ten seconds...")
+		time.Sleep(10 * time.Second)
 	}
 }

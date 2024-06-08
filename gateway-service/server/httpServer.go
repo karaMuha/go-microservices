@@ -7,7 +7,7 @@ import (
 	"github.com/rs/cors"
 )
 
-func InitHttpServer() *http.Server {
+func InitHttpServer(serverPort string) *http.Server {
 	controller := controllers.NewController()
 	router := http.NewServeMux()
 
@@ -25,7 +25,7 @@ func InitHttpServer() *http.Server {
 	handler := c.Handler(router)
 
 	return &http.Server{
-		Addr:    ":8080",
+		Addr:    serverPort,
 		Handler: handler,
 	}
 }

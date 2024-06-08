@@ -1,14 +1,21 @@
 package server
 
 import (
+	"authentication/utils"
 	"database/sql"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/rs/cors"
-	"github.com/spf13/viper"
 )
 
-func InitHttpServer(config *viper.Viper, db *sql.DB) *http.Server {
+func InitHttpServer(db *sql.DB) *http.Server {
+	err := utils.ReadPrivateKeyFromFile(os.Getenv("PRIVATE_KEY_PATH"))
+	if err != nil {
+		log.Fatalf("Error while reading private key: %v", err)
+	}
+
 	router := http.NewServeMux()
 
 	c := cors.New(cors.Options{
@@ -23,7 +30,7 @@ func InitHttpServer(config *viper.Viper, db *sql.DB) *http.Server {
 	handler := c.Handler(router)
 
 	return &http.Server{
-		Addr:    config.GetString("SERVER_PORT"),
+		Addr:    ":8080",
 		Handler: handler,
 	}
 }
