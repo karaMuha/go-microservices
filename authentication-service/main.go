@@ -1,29 +1,18 @@
 package main
 
 import (
-	"authentication/config"
 	"authentication/server"
 	"log"
-	"os"
 )
 
 func main() {
-	log.Println("Starting eventom app")
-
-	log.Println("Reading environment variables")
-	appEnvironment := os.Getenv("APP_ENV")
-
-	if appEnvironment == "" {
-		log.Fatal("Could not get app environment")
-	}
-
-	config := config.ReadEnvFile(appEnvironment)
+	log.Println("Starting authentication service")
 
 	log.Println("Initializing database")
-	db := server.ConnectToDb(config)
+	db := server.ConnectToDb()
 
-	log.Println("Initializinh http server")
-	httpServer := server.InitHttpServer(config, db)
+	log.Println("Initializing http server")
+	httpServer := server.InitHttpServer(db)
 
 	err := httpServer.ListenAndServe()
 	if err != nil {

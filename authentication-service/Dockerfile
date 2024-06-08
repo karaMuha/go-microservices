@@ -1,20 +1,13 @@
 FROM golang:1.22-alpine as builder
 
-RUN mkdir /app
-
-COPY . /app
-
 WORKDIR /app
 
-RUN CGO_ENABLED=0 go build -o authenticationService .
+COPY . .
+
+RUN CGO_ENABLED=0 go build -o authenticationService main.go
 
 RUN chmod +x /app/authenticationService
 
-# build a tiny docker image
-FROM alpine:latest
-
-RUN mkdir /app
-
-COPY --from=builder /app/authenticationService /app
-
 CMD [ "/app/authenticationService" ]
+
+# TODO: fix issue with with copying private key for small docker image
