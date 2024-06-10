@@ -8,11 +8,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var PrivateKey *rsa.PrivateKey
+var Validator *validator.Validate
 
 func ReadPrivateKeyFromFile(filename string) error {
 	file, err := os.Open(filename)

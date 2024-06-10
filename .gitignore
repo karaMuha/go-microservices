@@ -37,20 +37,3 @@ db-data
 # private/public key
 id_rsa_priv.pem
 id_rsa_pub.pem
-
-# dev env variables
-dev.env
-
-# some notes
-notes.txt
-
-# private/public key
-id_rsa_priv.pem
-id_rsa_pub.pem
-
-# data folder
-db-data
-
-# private/public key
-id_rsa_priv.pem
-id_rsa_pub.pem

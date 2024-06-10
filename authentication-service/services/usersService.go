@@ -20,6 +20,19 @@ func NewUsersService(usersRepository repositories.UsersRepositoryInterface) User
 }
 
 func (us UsersService) SignupUser(user *models.User) *models.ResponseError {
+	userInDb, responseErr := us.GetUserByEmail(user.Email)
+
+	if responseErr != nil {
+		return responseErr
+	}
+
+	if userInDb != nil {
+		return &models.ResponseError{
+			Message: "Email already exists",
+			Status:  http.StatusConflict,
+		}
+	}
+
 	hashedPassword, err := utils.HashPassword(user.Password)
 
 	if err != nil {
