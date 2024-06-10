@@ -6,6 +6,7 @@ import (
 	"authentication/utils"
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
 type UsersController struct {
@@ -85,12 +86,47 @@ func (uc UsersController) HandleUpdateUser(w http.ResponseWriter, r *http.Reques
 
 func (uc UsersController) HandleDeleteUser(w http.ResponseWriter, r *http.Request) {}
 
-func (uc UsersController) HandleLoginUser(w http.ResponseWriter, r *http.Request) {}
+func (uc UsersController) HandleLoginUser(w http.ResponseWriter, r *http.Request) {
+	var loginCredentials models.LoginCredentials
+	bodyDecorder := json.NewDecoder(r.Body)
 
-func (uc UsersController) HandleLogoutUser(w http.ResponseWriter, r *http.Request) {}
+	responseErr := parseUser(&loginCredentials, bodyDecorder)
 
-func parseUser(user *models.User, bodyDecoder *json.Decoder) *models.ResponseError {
-	err := bodyDecoder.Decode(user)
+	if responseErr != nil {
+		http.Error(w, responseErr.Message, responseErr.Status)
+		return
+	}
+
+	jwtToken, responseErr := uc.usersService.LoginUser(loginCredentials.Email, loginCredentials.Password)
+
+	if responseErr != nil {
+		http.Error(w, responseErr.Message, responseErr.Status)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt",
+		Value:    jwtToken,
+		Secure:   true,
+		HttpOnly: true,
+		Expires:  time.Now().Add(time.Hour),
+	})
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (uc UsersController) HandleLogoutUser(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:    "jwt",
+		Value:   "",
+		Expires: time.Now(),
+	})
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func parseUser(data any, bodyDecoder *json.Decoder) *models.ResponseError {
+	err := bodyDecoder.Decode(data)
 
 	if err != nil {
 		return &models.ResponseError{
@@ -99,7 +135,7 @@ func parseUser(user *models.User, bodyDecoder *json.Decoder) *models.ResponseErr
 		}
 	}
 
-	err = utils.Validator.Struct(user)
+	err = utils.Validator.Struct(data)
 
 	if err != nil {
 		return &models.ResponseError{
