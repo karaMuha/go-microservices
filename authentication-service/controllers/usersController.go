@@ -39,9 +39,47 @@ func (uc UsersController) HandleSignupUser(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusOK)
 }
 
-func (uc UsersController) HandleGetUsers(w http.ResponseWriter, r *http.Request) {}
+func (uc UsersController) HandleGetUser(w http.ResponseWriter, r *http.Request) {
+	email := r.PathValue("email")
 
-func (uc UsersController) HandleGetAllUsers(w http.ResponseWriter, r *http.Request) {}
+	user, responseErr := uc.usersService.GetUserByEmail(email)
+
+	if responseErr != nil {
+		http.Error(w, responseErr.Message, responseErr.Status)
+		return
+	}
+
+	responseJson, err := json.Marshal(&user)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(responseJson)
+}
+
+func (uc UsersController) HandleGetAllUsers(w http.ResponseWriter, r *http.Request) {
+	users, responseErr := uc.usersService.GetAllUsers()
+
+	if responseErr != nil {
+		http.Error(w, responseErr.Message, responseErr.Status)
+		return
+	}
+
+	responseJson, err := json.Marshal(&users)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(responseJson)
+}
 
 func (uc UsersController) HandleUpdateUser(w http.ResponseWriter, r *http.Request) {}
 
