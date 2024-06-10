@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"authentication/models"
 	"authentication/services"
+	"authentication/utils"
+	"encoding/json"
 	"net/http"
 )
 
@@ -15,7 +18,26 @@ func NewUsersController(usersService services.UsersServiceInterface) *UsersContr
 	}
 }
 
-func (uc UsersController) HandleSignupUser(w http.ResponseWriter, r *http.Request) {}
+func (uc UsersController) HandleSignupUser(w http.ResponseWriter, r *http.Request) {
+	var user models.User
+	bodyDecoder := json.NewDecoder(r.Body)
+
+	responseErr := parseUser(&user, bodyDecoder)
+
+	if responseErr != nil {
+		http.Error(w, responseErr.Message, responseErr.Status)
+		return
+	}
+
+	responseErr = uc.usersService.SignupUser(&user)
+
+	if responseErr != nil {
+		http.Error(w, responseErr.Message, responseErr.Status)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
 
 func (uc UsersController) HandleGetUsers(w http.ResponseWriter, r *http.Request) {}
 
@@ -26,3 +48,27 @@ func (uc UsersController) HandleUpdateUser(w http.ResponseWriter, r *http.Reques
 func (uc UsersController) HandleDeleteUser(w http.ResponseWriter, r *http.Request) {}
 
 func (uc UsersController) HandleLoginUser(w http.ResponseWriter, r *http.Request) {}
+
+func (uc UsersController) HandleLogoutUser(w http.ResponseWriter, r *http.Request) {}
+
+func parseUser(user *models.User, bodyDecoder *json.Decoder) *models.ResponseError {
+	err := bodyDecoder.Decode(user)
+
+	if err != nil {
+		return &models.ResponseError{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+		}
+	}
+
+	err = utils.Validator.Struct(user)
+
+	if err != nil {
+		return &models.ResponseError{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+		}
+	}
+
+	return nil
+}
