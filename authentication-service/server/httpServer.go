@@ -1,6 +1,9 @@
 package server
 
 import (
+	"authentication/controllers"
+	"authentication/repositories"
+	"authentication/services"
 	"authentication/utils"
 	"database/sql"
 	"log"
@@ -19,7 +22,18 @@ func InitHttpServer(db *sql.DB) *http.Server {
 	}
 	utils.Validator = validator.New()
 
+	// initialize layers
+	usersRepository := repositories.NewUsersRepository(db)
+	usersService := services.NewUsersService(usersRepository)
+	usersController := controllers.NewUsersController(usersService)
+
 	router := http.NewServeMux()
+
+	router.HandleFunc("POST /signup", usersController.HandleSignupUser)
+	router.HandleFunc("GET /users/{email}", usersController.HandleGetUser)
+	router.HandleFunc("GET /users", usersController.HandleGetAllUsers)
+	router.HandleFunc("POST /login", usersController.HandleLoginUser)
+	router.HandleFunc("POST /logout", usersController.HandleLogoutUser)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
