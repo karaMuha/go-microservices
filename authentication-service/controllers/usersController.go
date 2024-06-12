@@ -142,15 +142,16 @@ func (uc UsersController) HandleLoginUser(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "jwt",
-		Value:    jwtToken,
-		Secure:   true,
-		HttpOnly: true,
-		Expires:  time.Now().Add(time.Hour),
-	})
+	responseJson, err := json.Marshal(&jwtToken)
 
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(responseJson)
 }
 
 func (uc UsersController) HandleLogoutUser(w http.ResponseWriter, r *http.Request) {
