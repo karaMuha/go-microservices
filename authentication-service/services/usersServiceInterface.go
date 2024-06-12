@@ -11,7 +11,7 @@ type UsersServiceInterface interface {
 
 	UpdateUser(user *models.User) *models.ResponseError
 
-	DeleteUser(id string) *models.ResponseError
+	DeleteUser(user *models.User) *models.ResponseError
 
 	LoginUser(email string, password string) (string, *models.ResponseError)
 }
