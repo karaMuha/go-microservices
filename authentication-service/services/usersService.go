@@ -54,11 +54,23 @@ func (us UsersService) GetAllUsers() ([]*models.User, *models.ResponseError) {
 }
 
 func (us UsersService) UpdateUser(user *models.User) *models.ResponseError {
+	responseErr := us.checkPermission(user)
+
+	if responseErr != nil {
+		return responseErr
+	}
+
 	return us.usersRepository.QueryUpdateUser(user)
 }
 
-func (us UsersService) DeleteUser(id string) *models.ResponseError {
-	return us.usersRepository.QueryDeleteUser(id)
+func (us UsersService) DeleteUser(user *models.User) *models.ResponseError {
+	responseErr := us.checkPermission(user)
+
+	if responseErr != nil {
+		return responseErr
+	}
+
+	return us.usersRepository.QueryDeleteUser(user.ID)
 }
 
 func (us UsersService) LoginUser(email string, password string) (string, *models.ResponseError) {
@@ -94,4 +106,28 @@ func (us UsersService) LoginUser(email string, password string) (string, *models
 	}
 
 	return token, nil
+}
+
+func (us UsersService) checkPermission(user *models.User) *models.ResponseError {
+	userInDb, responseErr := us.usersRepository.QueryGetUserByEmail(user.Email)
+
+	if responseErr != nil {
+		return responseErr
+	}
+
+	if userInDb == nil {
+		return &models.ResponseError{
+			Message: "User not found",
+			Status:  http.StatusNotFound,
+		}
+	}
+
+	if user.ID != userInDb.ID {
+		return &models.ResponseError{
+			Message: "Access denied",
+			Status:  http.StatusUnauthorized,
+		}
+	}
+
+	return nil
 }

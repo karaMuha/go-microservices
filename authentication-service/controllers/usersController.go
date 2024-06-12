@@ -82,9 +82,47 @@ func (uc UsersController) HandleGetAllUsers(w http.ResponseWriter, r *http.Reque
 	w.Write(responseJson)
 }
 
-func (uc UsersController) HandleUpdateUser(w http.ResponseWriter, r *http.Request) {}
+func (uc UsersController) HandleUpdateUser(w http.ResponseWriter, r *http.Request) {
+	var user models.User
+	bodyDecoder := json.NewDecoder(r.Body)
 
-func (uc UsersController) HandleDeleteUser(w http.ResponseWriter, r *http.Request) {}
+	responseErr := parseUser(&user, bodyDecoder)
+
+	if responseErr != nil {
+		http.Error(w, responseErr.Message, responseErr.Status)
+		return
+	}
+
+	responseErr = uc.usersService.UpdateUser(&user)
+
+	if responseErr != nil {
+		http.Error(w, responseErr.Message, responseErr.Status)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (uc UsersController) HandleDeleteUser(w http.ResponseWriter, r *http.Request) {
+	var user models.User
+	bodyDecoder := json.NewDecoder(r.Body)
+
+	responseErr := parseUser(&user, bodyDecoder)
+
+	if responseErr != nil {
+		http.Error(w, responseErr.Message, responseErr.Status)
+		return
+	}
+
+	responseErr = uc.usersService.DeleteUser(&user)
+
+	if responseErr != nil {
+		http.Error(w, responseErr.Message, responseErr.Status)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
 
 func (uc UsersController) HandleLoginUser(w http.ResponseWriter, r *http.Request) {
 	var loginCredentials models.LoginCredentials
