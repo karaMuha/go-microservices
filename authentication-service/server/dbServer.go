@@ -56,7 +56,7 @@ func ConnectToDb() *sql.DB {
 			return nil
 		}
 
-		log.Println("Backing off for ten seconds...")
-		time.Sleep(10 * time.Second)
+		log.Println("Backing off for five seconds...")
+		time.Sleep(5 * time.Second)
 	}
 }
