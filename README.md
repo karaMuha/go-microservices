@@ -1,4 +1,5 @@
 ## ToDos
+- Add RabbitMQ
 - Implement logger-service
 - Implement mail-service
 - Implement listenser-service
