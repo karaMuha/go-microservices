@@ -1,5 +1,5 @@
 ## ToDos
-- Add RabbitMQ
+- Add RabbitMQ to docker-compose
 - Implement logger-service
 - Implement mail-service
 - Implement listenser-service
