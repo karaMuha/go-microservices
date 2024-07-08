@@ -30,6 +30,19 @@ services:
     depends_on:
       - postgres
 
+  logger-service:
+    build:
+      context: ./logger-service
+      dockerfile: ./Dockerfile
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      MONGO_URL: "mongodb://mongo:27017"
+      MONGO_USER: "admin"
+      MONGO_PASSWORD: "admin"
+
   postgres:
     container_name: postgres
     image: 'postgres:16.3-alpine'
