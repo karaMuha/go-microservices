@@ -17,8 +17,16 @@ func ConnectToDb() (*mongo.Client, error) {
 	})
 
 	client, err := mongo.Connect(context.TODO(), clientOptions)
+
 	if err != nil {
 		log.Println("Error while connecting to mongo:", err)
+		return nil, err
+	}
+
+	err = client.Ping(context.TODO(), nil)
+
+	if err != nil {
+		log.Println("Could not ping mongo:", err)
 		return nil, err
 	}
 
