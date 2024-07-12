@@ -23,6 +23,7 @@ func main() {
 		}
 	}()
 
+	log.Println("Starting http server")
 	httpServer := server.InitHttpServer(mongoClient)
 	err = httpServer.ListenAndServe()
 	if err != nil {
