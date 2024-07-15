@@ -2,8 +2,10 @@ package services
 
 import (
 	"authentication/models"
+	"authentication/queue"
 	"authentication/repositories"
 	"authentication/utils"
+	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -11,11 +13,13 @@ import (
 
 type UsersService struct {
 	usersRepository repositories.UsersRepositoryInterface
+	eventProducer   *queue.EventProducer
 }
 
-func NewUsersService(usersRepository repositories.UsersRepositoryInterface) UsersServiceInterface {
+func NewUsersService(usersRepository repositories.UsersRepositoryInterface, eventProducer *queue.EventProducer) UsersServiceInterface {
 	return &UsersService{
 		usersRepository: usersRepository,
+		eventProducer:   eventProducer,
 	}
 }
 
@@ -42,7 +46,19 @@ func (us UsersService) SignupUser(user *models.User) *models.ResponseError {
 		}
 	}
 
-	return us.usersRepository.QueryCreateUser(user, hashedPassword)
+	responseErr = us.usersRepository.QueryCreateUser(user, hashedPassword)
+
+	if responseErr != nil {
+		return responseErr
+	}
+
+	err = us.eventProducer.PushEvent(user.Email, "log.INFO")
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return nil
 }
 
 func (us UsersService) GetUserByEmail(email string) (*models.User, *models.ResponseError) {
