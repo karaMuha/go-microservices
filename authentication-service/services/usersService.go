@@ -5,6 +5,7 @@ import (
 	"authentication/queue"
 	"authentication/repositories"
 	"authentication/utils"
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -52,7 +53,25 @@ func (us UsersService) SignupUser(user *models.User) *models.ResponseError {
 		return responseErr
 	}
 
-	err = us.eventProducer.PushEvent(user.Email, "log.INFO")
+	signupEvent := models.SignupEvent{
+		Email: user.Email,
+	}
+
+	eventPayload := models.EventPayload{
+		Name: "signup",
+		Data: signupEvent,
+	}
+
+	jsonSignupEvent, err := json.Marshal(&eventPayload)
+
+	if err != nil {
+		return &models.ResponseError{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		}
+	}
+
+	err = us.eventProducer.PushEvent(jsonSignupEvent, "log.INFO")
 
 	if err != nil {
 		log.Println(err)

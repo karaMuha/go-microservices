@@ -31,7 +31,6 @@ func (ep *EventProducer) setup() error {
 		return err
 	}
 
-	defer channel.Close()
 	return channel.ExchangeDeclare(
 		"auth_topic",
 		"topic",
@@ -43,7 +42,7 @@ func (ep *EventProducer) setup() error {
 	)
 }
 
-func (ep *EventProducer) PushEvent(event string, severity string) error {
+func (ep *EventProducer) PushEvent(event []byte, severity string) error {
 	channel, err := ep.connection.Channel()
 
 	if err != nil {
@@ -61,7 +60,7 @@ func (ep *EventProducer) PushEvent(event string, severity string) error {
 		false,
 		amqp091.Publishing{
 			ContentType: "text/plain",
-			Body:        []byte(event),
+			Body:        event,
 		},
 	)
 
