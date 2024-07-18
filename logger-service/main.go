@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"logger/events"
 	"logger/server"
 )
 
@@ -23,8 +24,22 @@ func main() {
 		}
 	}()
 
+	log.Println("Connecting to message queue")
+	mqConnection, err := events.Connect()
+
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	defer mqConnection.Close()
+
 	log.Println("Starting http server")
-	httpServer := server.InitHttpServer(mongoClient)
+	httpServer, err := server.InitHttpServer(mongoClient, mqConnection)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	err = httpServer.ListenAndServe()
 	if err != nil {
 		log.Fatalf("Error while starting http server: %v", err)

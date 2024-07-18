@@ -5,6 +5,7 @@ import (
 	"authentication/services"
 	"authentication/utils"
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 )
@@ -167,6 +168,7 @@ func parseUser(data any, bodyDecoder *json.Decoder) *models.ResponseError {
 	err := bodyDecoder.Decode(data)
 
 	if err != nil {
+		log.Println(err)
 		return &models.ResponseError{
 			Message: err.Error(),
 			Status:  http.StatusBadRequest,

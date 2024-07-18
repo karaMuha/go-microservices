@@ -2,6 +2,7 @@ package server
 
 import (
 	"authentication/controllers"
+	"authentication/events"
 	"authentication/repositories"
 	"authentication/services"
 	"authentication/utils"
@@ -11,10 +12,11 @@ import (
 	"os"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/rabbitmq/amqp091-go"
 	"github.com/rs/cors"
 )
 
-func InitHttpServer(db *sql.DB) *http.Server {
+func InitHttpServer(db *sql.DB, mqConnection *amqp091.Connection) *http.Server {
 	// setup utils
 	err := utils.ReadPrivateKeyFromFile(os.Getenv("PRIVATE_KEY_PATH"))
 	if err != nil {
@@ -22,9 +24,15 @@ func InitHttpServer(db *sql.DB) *http.Server {
 	}
 	utils.Validator = validator.New()
 
+	eventProducer, err := events.NewEventProducer(mqConnection)
+
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
 	// initialize layers
 	usersRepository := repositories.NewUsersRepository(db)
-	usersService := services.NewUsersService(usersRepository)
+	usersService := services.NewUsersService(usersRepository, eventProducer)
 	usersController := controllers.NewUsersController(usersService)
 
 	router := http.NewServeMux()

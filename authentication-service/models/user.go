@@ -7,7 +7,7 @@ type User struct {
 	Email     string    `json:"email" validate:"required,email"`
 	FirstName string    `json:"firstName"`
 	LastName  string    `json:"lastName"`
-	Password  string    `json:"-" validate:"required"`
+	Password  string    `json:"password" validate:"required"`
 	Active    bool      `json:"active"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`

@@ -2,16 +2,18 @@ package server
 
 import (
 	"logger/controllers"
+	"logger/events"
 	"logger/repositories"
 	"logger/services"
 	"net/http"
 	"os"
 
+	"github.com/rabbitmq/amqp091-go"
 	"github.com/rs/cors"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func InitHttpServer(mongoClient *mongo.Client) *http.Server {
+func InitHttpServer(mongoClient *mongo.Client, mqConnection *amqp091.Connection) (*http.Server, error) {
 	logEntryRepository := repositories.NewLogEntryRepository(mongoClient)
 	logEntryService := services.NewLogEntryService(logEntryRepository)
 	logEntryController := controllers.NewLogEntryController(logEntryService)
@@ -33,8 +35,20 @@ func InitHttpServer(mongoClient *mongo.Client) *http.Server {
 
 	handler := c.Handler(router)
 
+	eventConsumer, err := events.NewEventConsumer(mqConnection, logEntryService)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = eventConsumer.Listen([]string{"log.INFO", "log.WARNING", "log.ERROR"})
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &http.Server{
 		Addr:    os.Getenv("SERVER_PORT"),
 		Handler: handler,
-	}
+	}, nil
 }
