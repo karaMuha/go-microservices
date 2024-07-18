@@ -2,7 +2,7 @@ package server
 
 import (
 	"authentication/controllers"
-	"authentication/queue"
+	"authentication/events"
 	"authentication/repositories"
 	"authentication/services"
 	"authentication/utils"
@@ -24,7 +24,7 @@ func InitHttpServer(db *sql.DB, mqConnection *amqp091.Connection) *http.Server {
 	}
 	utils.Validator = validator.New()
 
-	eventProducer, err := queue.NewEventProducer(mqConnection)
+	eventProducer, err := events.NewEventProducer(mqConnection)
 
 	if err != nil {
 		log.Fatalf(err.Error())
