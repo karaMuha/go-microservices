@@ -2,15 +2,17 @@ package httpserver
 
 import (
 	"mailer/controllers"
+	"mailer/events"
 	"mailer/mailserver"
 	"mailer/services"
 	"net/http"
 	"os"
 
+	"github.com/rabbitmq/amqp091-go"
 	"github.com/rs/cors"
 )
 
-func InitHttpServer(mailServer *mailserver.MailServer) *http.Server {
+func InitHttpServer(mailServer *mailserver.MailServer, mqConnection *amqp091.Connection) (*http.Server, error) {
 	mailService := services.NewMailServiceImpl(mailServer)
 	mailController := controllers.NewMailController(mailService)
 
@@ -28,8 +30,20 @@ func InitHttpServer(mailServer *mailserver.MailServer) *http.Server {
 
 	handler := c.Handler(router)
 
+	eventConsumer, err := events.NewEventConsumer(mqConnection, mailService)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = eventConsumer.Listen([]string{"log.INFO", "log.WARNING", "log.ERROR"})
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &http.Server{
 		Addr:    os.Getenv("SERVER_PORT"),
 		Handler: handler,
-	}
+	}, nil
 }

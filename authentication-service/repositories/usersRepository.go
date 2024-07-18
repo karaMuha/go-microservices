@@ -109,8 +109,10 @@ func (ur UsersRepository) QueryGetUserByEmail(email string) (*models.User, *mode
 			created_at,
 			updated_at
 		FROM
-			users`
-	row := ur.dbHandler.QueryRow(query)
+			users
+		WHERE
+			email = $1`
+	row := ur.dbHandler.QueryRow(query, email)
 
 	var user models.User
 	err := row.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Password, &user.Active, &user.CreatedAt, &user.UpdatedAt)

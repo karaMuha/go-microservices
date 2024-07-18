@@ -1,9 +1,12 @@
 package services
 
 import (
+	"authentication/events"
 	"authentication/models"
 	"authentication/repositories"
 	"authentication/utils"
+	"encoding/json"
+	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -11,11 +14,13 @@ import (
 
 type UsersService struct {
 	usersRepository repositories.UsersRepositoryInterface
+	eventProducer   *events.EventProducer
 }
 
-func NewUsersService(usersRepository repositories.UsersRepositoryInterface) UsersServiceInterface {
+func NewUsersService(usersRepository repositories.UsersRepositoryInterface, eventProducer *events.EventProducer) UsersServiceInterface {
 	return &UsersService{
 		usersRepository: usersRepository,
+		eventProducer:   eventProducer,
 	}
 }
 
@@ -42,7 +47,32 @@ func (us UsersService) SignupUser(user *models.User) *models.ResponseError {
 		}
 	}
 
-	return us.usersRepository.QueryCreateUser(user, hashedPassword)
+	responseErr = us.usersRepository.QueryCreateUser(user, hashedPassword)
+
+	if responseErr != nil {
+		return responseErr
+	}
+
+	signupEvent := models.SignupEvent{
+		Email: user.Email,
+	}
+
+	jsonSignupEvent, err := json.Marshal(&signupEvent)
+
+	if err != nil {
+		return &models.ResponseError{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		}
+	}
+
+	err = us.eventProducer.PushEvent(jsonSignupEvent, "log.INFO")
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return nil
 }
 
 func (us UsersService) GetUserByEmail(email string) (*models.User, *models.ResponseError) {
