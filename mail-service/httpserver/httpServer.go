@@ -2,8 +2,8 @@ package httpserver
 
 import (
 	"mailer/controllers"
+	"mailer/events"
 	"mailer/mailserver"
-	"mailer/queue"
 	"mailer/services"
 	"net/http"
 	"os"
@@ -30,7 +30,7 @@ func InitHttpServer(mailServer *mailserver.MailServer, mqConnection *amqp091.Con
 
 	handler := c.Handler(router)
 
-	eventConsumer, err := queue.NewEventConsumer(mqConnection, mailService)
+	eventConsumer, err := events.NewEventConsumer(mqConnection, mailService)
 
 	if err != nil {
 		return nil, err

@@ -1,8 +1,8 @@
 package services
 
 import (
+	"authentication/events"
 	"authentication/models"
-	"authentication/queue"
 	"authentication/repositories"
 	"authentication/utils"
 	"encoding/json"
@@ -14,10 +14,10 @@ import (
 
 type UsersService struct {
 	usersRepository repositories.UsersRepositoryInterface
-	eventProducer   *queue.EventProducer
+	eventProducer   *events.EventProducer
 }
 
-func NewUsersService(usersRepository repositories.UsersRepositoryInterface, eventProducer *queue.EventProducer) UsersServiceInterface {
+func NewUsersService(usersRepository repositories.UsersRepositoryInterface, eventProducer *events.EventProducer) UsersServiceInterface {
 	return &UsersService{
 		usersRepository: usersRepository,
 		eventProducer:   eventProducer,

@@ -2,15 +2,15 @@ package main
 
 import (
 	"log"
+	"mailer/events"
 	"mailer/httpserver"
 	"mailer/mailserver"
-	"mailer/queue"
 )
 
 func main() {
 	log.Println("Starting mail service")
 
-	mqConnection, err := queue.Connect()
+	mqConnection, err := events.Connect()
 
 	if err != nil {
 		log.Fatal(err)

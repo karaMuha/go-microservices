@@ -1,7 +1,7 @@
 package main
 
 import (
-	"authentication/queue"
+	"authentication/events"
 	"authentication/server"
 	"log"
 	"os"
@@ -15,7 +15,7 @@ func main() {
 	log.Println("Connected to database")
 
 	log.Println("Connecting to message queue")
-	mqConnection, err := queue.Connect()
+	mqConnection, err := events.Connect()
 
 	if err != nil {
 		log.Fatalf(err.Error())
