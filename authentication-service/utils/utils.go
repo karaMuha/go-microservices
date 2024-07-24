@@ -13,7 +13,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// used to sign jwt token
 var PrivateKey *rsa.PrivateKey
+
+// used to validate reqeust body
 var Validator *validator.Validate
 
 func ReadPrivateKeyFromFile(filename string) error {

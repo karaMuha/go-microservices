@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/thanhpk/randstr"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -47,14 +48,17 @@ func (us UsersService) SignupUser(user *models.User) *models.ResponseError {
 		}
 	}
 
-	responseErr = us.usersRepository.QueryCreateUser(user, hashedPassword)
+	verificationToken := randstr.String(64)
+
+	responseErr = us.usersRepository.QueryCreateUser(user, hashedPassword, verificationToken)
 
 	if responseErr != nil {
 		return responseErr
 	}
 
 	signupEvent := models.SignupEvent{
-		Email: user.Email,
+		Email:             user.Email,
+		VerificationToken: verificationToken,
 	}
 
 	jsonSignupEvent, err := json.Marshal(&signupEvent)

@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS users (
   first_name TEXT,
   last_name TEXT,
   user_password TEXT NOT NULL,
-  is_active BOOLEAN DEFAULT true,
+  is_active BOOLEAN DEFAULT false,
+  verification_token TEXT NOT NULL,
   created_at TIMESTAMP,
   updated_at TIMESTAMP
 )

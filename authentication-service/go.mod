@@ -11,6 +11,7 @@ require (
 	github.com/go-playground/validator/v10 v10.21.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
+	github.com/thanhpk/randstr v1.0.6 // indirect
 	golang.org/x/net v0.23.0 // indirect
 )
 

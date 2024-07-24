@@ -58,8 +58,8 @@ services:
       MAIL_ENCRYPTION: none
       MAIL_USERNAME: ""
       MAIL_PASSWORD: ""
-      FROM_NAME: "Max Mustermann"
-      FROM_ADDRESS: "max.mustermann@test.com"
+      MAIL_FROMNAME: "Max Mustermann"
+      MAIL_FROMADDRESS: "max.mustermann@test.com"
 
   postgres:
     container_name: postgres

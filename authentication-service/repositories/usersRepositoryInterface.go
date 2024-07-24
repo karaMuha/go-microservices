@@ -3,7 +3,7 @@ package repositories
 import "authentication/models"
 
 type UsersRepositoryInterface interface {
-	QueryCreateUser(user *models.User, hashedPassword string) *models.ResponseError
+	QueryCreateUser(user *models.User, hashedPassword string, verificationToken string) *models.ResponseError
 
 	QueryGetAllUsers() ([]*models.User, *models.ResponseError)
 
