@@ -1,7 +1,6 @@
 package events
 
 import (
-	"encoding/json"
 	"log"
 	"logger/models"
 	"logger/services"
@@ -50,6 +49,8 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 		return err
 	}
 
+	log.Println("Got channel")
+
 	queue, err := channel.QueueDeclare(
 		"",
 		false,
@@ -62,6 +63,8 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 	if err != nil {
 		return err
 	}
+
+	log.Println("Queues declared")
 
 	for _, str := range topics {
 		err = channel.QueueBind(
@@ -77,26 +80,33 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 		return err
 	}
 
+	log.Println("Queues bond")
+
 	messages, err := channel.Consume(queue.Name, "", true, false, false, false, nil)
 
 	if err != nil {
 		return err
 	}
 
+	log.Println("Consuming")
+
 	forever := make(chan bool)
 	go func() {
 		for data := range messages {
-			var eventPayload models.SignupEvent
-			_ = json.Unmarshal(data.Body, &eventPayload)
-
-			go handleSignupEventPayload(eventPayload)
+			go consumer.handleSignupEventPayload(data.Body)
 		}
 	}()
 	<-forever
 
+	log.Println("Forever thing")
 	return nil
 }
 
-func handleSignupEventPayload(payload models.SignupEvent) {
-	log.Printf("Signup event for user %s received", payload.Email)
+func (consumer *EventConsumer) handleSignupEventPayload(payload []byte) {
+	logEntry := &models.LogEntry{
+		Name: "Registration",
+		Data: string(payload),
+	}
+
+	consumer.logEntryService.InsertLogEntry(logEntry)
 }

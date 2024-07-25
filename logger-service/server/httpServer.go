@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"logger/controllers"
 	"logger/events"
 	"logger/repositories"
@@ -47,6 +48,7 @@ func InitHttpServer(mongoClient *mongo.Client, mqConnection *amqp091.Connection)
 		return nil, err
 	}
 
+	log.Println(os.Getenv("SERVER_PORT"))
 	return &http.Server{
 		Addr:    os.Getenv("SERVER_PORT"),
 		Handler: handler,

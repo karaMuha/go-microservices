@@ -33,13 +33,13 @@ func main() {
 
 	defer mqConnection.Close()
 
-	log.Println("Starting http server")
 	httpServer, err := server.InitHttpServer(mongoClient, mqConnection)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	log.Println("Starting http server")
 	err = httpServer.ListenAndServe()
 	if err != nil {
 		log.Fatalf("Error while starting http server: %v", err)
