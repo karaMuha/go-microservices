@@ -5,6 +5,8 @@ import "authentication/models"
 type UsersServiceInterface interface {
 	SignupUser(user *models.User) *models.ResponseError
 
+	ConfirmUserRegistration(email string, verificationToken string) *models.ResponseError
+
 	GetUserByEmail(email string) (*models.User, *models.ResponseError)
 
 	GetAllUsers() ([]*models.User, *models.ResponseError)

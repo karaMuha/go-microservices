@@ -2,6 +2,7 @@ package events
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"mailer/models"
 	"mailer/services"
@@ -89,7 +90,7 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 			var eventPayload models.SignupEvent
 			_ = json.Unmarshal(data.Body, &eventPayload)
 
-			go handleSignupEventPayload(eventPayload)
+			go consumer.handleSignupEventPayload(eventPayload)
 		}
 	}()
 	<-forever
@@ -97,6 +98,14 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 	return nil
 }
 
-func handleSignupEventPayload(payload models.SignupEvent) {
-	log.Printf("Signup event for user %s received", payload.Email)
+func (consumer *EventConsumer) handleSignupEventPayload(payload models.SignupEvent) {
+	log.Printf("Signup event for user %s received with verification token %s", payload.Email, payload.VerificationToken)
+	mailMessage := fmt.Sprintf("Please visit localhost:8081/register/%s/%s to complete your registration", payload.Email, payload.VerificationToken)
+	mail := &models.Mail{
+		To:      payload.Email,
+		Subject: "Confirm registration",
+		Message: mailMessage,
+	}
+
+	_ = consumer.mailService.SendMail(mail)
 }

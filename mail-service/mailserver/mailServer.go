@@ -79,8 +79,16 @@ func (m *MailServer) SendSMTPMail(mail *models.Mail) error {
 	}
 
 	email := simpleMail.NewMSG()
-	email.SetFrom(mail.From).AddTo(mail.To).SetSubject(mail.Subject)
+	email.SetFrom(mail.From)
+	email.AddTo(mail.To)
+	email.SetSubject(mail.Subject)
 	email.SetBody(simpleMail.TextHTML, formattedMessage)
+
+	err = email.Error
+
+	if err != nil {
+		return err
+	}
 
 	err = email.Send(smtpClient)
 
@@ -92,7 +100,7 @@ func (m *MailServer) SendSMTPMail(mail *models.Mail) error {
 }
 
 func (m *MailServer) buildHTMLMail(mail *models.Mail) (string, error) {
-	templateToRender := "./templates/mail.html.gohtml"
+	templateToRender := "./app/mail.html"
 
 	t, err := template.New("email-html").ParseFiles(templateToRender)
 

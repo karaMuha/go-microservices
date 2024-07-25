@@ -17,14 +17,14 @@ func NewUsersRepository(dbHandler *sql.DB) UsersRepositoryInterface {
 	}
 }
 
-func (ur UsersRepository) QueryCreateUser(user *models.User, hashedPassword string) *models.ResponseError {
+func (ur UsersRepository) QueryCreateUser(user *models.User, hashedPassword string, verificationToken string) *models.ResponseError {
 	query := `
 		INSERT INTO
-			users(email, first_name, last_name, user_password, created_at, updated_at)
+			users(email, first_name, last_name, user_password, verification_token, created_at, updated_at)
 		VALUES
-			($1, $2, $3, $4, $5, $6)
+			($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id`
-	row := ur.dbHandler.QueryRow(query, user.Email, user.FirstName, user.LastName, hashedPassword, user.CreatedAt, user.UpdatedAt)
+	row := ur.dbHandler.QueryRow(query, user.Email, user.FirstName, user.LastName, hashedPassword, verificationToken, user.CreatedAt, user.UpdatedAt)
 
 	var userId string
 	err := row.Scan(&userId)
@@ -42,10 +42,12 @@ func (ur UsersRepository) QueryCreateUser(user *models.User, hashedPassword stri
 func (ur UsersRepository) QueryGetAllUsers() ([]*models.User, *models.ResponseError) {
 	query := `
 		SELECT
+			id,
 			email,
 			first_name,
 			last_name,
 			is_active,
+			verification_token,
 			created_at,
 			updated_at
 		FROM
@@ -62,12 +64,12 @@ func (ur UsersRepository) QueryGetAllUsers() ([]*models.User, *models.ResponseEr
 	defer rows.Close()
 
 	users := make([]*models.User, 0)
-	var id, email, firstName, lastName string
+	var id, email, firstName, lastName, verficationToken string
 	var active bool
 	var createdAt, updatedAt time.Time
 
 	for rows.Next() {
-		err := rows.Scan(&id, &email, &firstName, &lastName, &active, &createdAt, &updatedAt)
+		err := rows.Scan(&id, &email, &firstName, &lastName, &active, &verficationToken, &createdAt, &updatedAt)
 		if err != nil {
 			return nil, &models.ResponseError{
 				Message: err.Error(),
@@ -75,13 +77,14 @@ func (ur UsersRepository) QueryGetAllUsers() ([]*models.User, *models.ResponseEr
 			}
 		}
 		user := &models.User{
-			ID:        id,
-			Email:     email,
-			FirstName: firstName,
-			LastName:  lastName,
-			Active:    active,
-			CreatedAt: createdAt,
-			UpdatedAt: updatedAt,
+			ID:                id,
+			Email:             email,
+			FirstName:         firstName,
+			LastName:          lastName,
+			Active:            active,
+			VerificationToken: verficationToken,
+			CreatedAt:         createdAt,
+			UpdatedAt:         updatedAt,
 		}
 
 		users = append(users, user)
@@ -106,6 +109,7 @@ func (ur UsersRepository) QueryGetUserByEmail(email string) (*models.User, *mode
 			last_name,
 			user_password,
 			is_active,
+			verification_token,
 			created_at,
 			updated_at
 		FROM
@@ -115,7 +119,7 @@ func (ur UsersRepository) QueryGetUserByEmail(email string) (*models.User, *mode
 	row := ur.dbHandler.QueryRow(query, email)
 
 	var user models.User
-	err := row.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Password, &user.Active, &user.CreatedAt, &user.UpdatedAt)
+	err := row.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Password, &user.Active, &user.VerificationToken, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -162,7 +166,7 @@ func (ur UsersRepository) QueryUpdateUser(user *models.User) *models.ResponseErr
 		}
 	}
 
-	if rowsAffected == 1 {
+	if rowsAffected != 1 {
 		return &models.ResponseError{
 			Message: "User not found",
 			Status:  http.StatusNotFound,
