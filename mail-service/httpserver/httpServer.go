@@ -1,7 +1,6 @@
 package httpserver
 
 import (
-	"mailer/controllers"
 	"mailer/events"
 	"mailer/mailserver"
 	"mailer/services"
@@ -14,10 +13,8 @@ import (
 
 func InitHttpServer(mailServer *mailserver.MailServer, mqConnection *amqp091.Connection) (*http.Server, error) {
 	mailService := services.NewMailServiceImpl(mailServer)
-	mailController := controllers.NewMailController(mailService)
 
 	router := http.NewServeMux()
-	router.HandleFunc("POST /send", mailController.HandleSendMail)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
