@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/thanhpk/randstr"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -47,14 +48,17 @@ func (us UsersService) SignupUser(user *models.User) *models.ResponseError {
 		}
 	}
 
-	responseErr = us.usersRepository.QueryCreateUser(user, hashedPassword)
+	verificationToken := randstr.String(64)
+
+	responseErr = us.usersRepository.QueryCreateUser(user, hashedPassword, verificationToken)
 
 	if responseErr != nil {
 		return responseErr
 	}
 
 	signupEvent := models.SignupEvent{
-		Email: user.Email,
+		Email:             user.Email,
+		VerificationToken: verificationToken,
 	}
 
 	jsonSignupEvent, err := json.Marshal(&signupEvent)
@@ -73,6 +77,32 @@ func (us UsersService) SignupUser(user *models.User) *models.ResponseError {
 	}
 
 	return nil
+}
+
+func (us UsersService) ConfirmUserRegistration(email string, verificationToken string) *models.ResponseError {
+	user, respErr := us.GetUserByEmail(email)
+
+	if respErr != nil {
+		return respErr
+	}
+
+	if user == nil {
+		return &models.ResponseError{
+			Message: "User not found",
+			Status:  http.StatusNotFound,
+		}
+	}
+
+	if verificationToken != user.VerificationToken {
+		return &models.ResponseError{
+			Message: "Token does not match",
+			Status:  http.StatusUnauthorized,
+		}
+	}
+
+	user.Active = true
+
+	return us.UpdateUser(user)
 }
 
 func (us UsersService) GetUserByEmail(email string) (*models.User, *models.ResponseError) {

@@ -35,10 +35,13 @@ services:
       context: ./logger-service
       dockerfile: ./Dockerfile
     restart: always
+    ports:
+      - "8082:8080"
     deploy:
       mode: replicated
       replicas: 1
     environment:
+      SERVER_PORT: ":8080"
       MONGO_URL: "mongodb://mongo:27017"
       MONGO_USER: "admin"
       MONGO_PASSWORD: "admin"
@@ -58,8 +61,8 @@ services:
       MAIL_ENCRYPTION: none
       MAIL_USERNAME: ""
       MAIL_PASSWORD: ""
-      FROM_NAME: "Max Mustermann"
-      FROM_ADDRESS: "max.mustermann@test.com"
+      MAIL_FROMNAME: "Max Mustermann"
+      MAIL_FROMADDRESS: "max.mustermann@test.com"
 
   postgres:
     container_name: postgres

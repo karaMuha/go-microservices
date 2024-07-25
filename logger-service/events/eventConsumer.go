@@ -1,8 +1,6 @@
 package events
 
 import (
-	"encoding/json"
-	"log"
 	"logger/models"
 	"logger/services"
 
@@ -86,10 +84,7 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 	forever := make(chan bool)
 	go func() {
 		for data := range messages {
-			var eventPayload models.SignupEvent
-			_ = json.Unmarshal(data.Body, &eventPayload)
-
-			go handleSignupEventPayload(eventPayload)
+			go consumer.handleSignupEventPayload(data.Body)
 		}
 	}()
 	<-forever
@@ -97,6 +92,11 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 	return nil
 }
 
-func handleSignupEventPayload(payload models.SignupEvent) {
-	log.Printf("Signup event for user %s received", payload.Email)
+func (consumer *EventConsumer) handleSignupEventPayload(payload []byte) {
+	logEntry := &models.LogEntry{
+		Name: "Registration",
+		Data: string(payload),
+	}
+
+	consumer.logEntryService.InsertLogEntry(logEntry)
 }
