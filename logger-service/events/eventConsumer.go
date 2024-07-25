@@ -1,7 +1,6 @@
 package events
 
 import (
-	"log"
 	"logger/models"
 	"logger/services"
 
@@ -49,8 +48,6 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 		return err
 	}
 
-	log.Println("Got channel")
-
 	queue, err := channel.QueueDeclare(
 		"",
 		false,
@@ -63,8 +60,6 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 	if err != nil {
 		return err
 	}
-
-	log.Println("Queues declared")
 
 	for _, str := range topics {
 		err = channel.QueueBind(
@@ -80,15 +75,11 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 		return err
 	}
 
-	log.Println("Queues bond")
-
 	messages, err := channel.Consume(queue.Name, "", true, false, false, false, nil)
 
 	if err != nil {
 		return err
 	}
-
-	log.Println("Consuming")
 
 	forever := make(chan bool)
 	go func() {
@@ -98,7 +89,6 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 	}()
 	<-forever
 
-	log.Println("Forever thing")
 	return nil
 }
 
