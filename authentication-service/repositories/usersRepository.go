@@ -42,6 +42,7 @@ func (ur UsersRepository) QueryCreateUser(user *models.User, hashedPassword stri
 func (ur UsersRepository) QueryGetAllUsers() ([]*models.User, *models.ResponseError) {
 	query := `
 		SELECT
+			id,
 			email,
 			first_name,
 			last_name,
@@ -76,13 +77,14 @@ func (ur UsersRepository) QueryGetAllUsers() ([]*models.User, *models.ResponseEr
 			}
 		}
 		user := &models.User{
-			ID:        id,
-			Email:     email,
-			FirstName: firstName,
-			LastName:  lastName,
-			Active:    active,
-			CreatedAt: createdAt,
-			UpdatedAt: updatedAt,
+			ID:                id,
+			Email:             email,
+			FirstName:         firstName,
+			LastName:          lastName,
+			Active:            active,
+			VerificationToken: verficationToken,
+			CreatedAt:         createdAt,
+			UpdatedAt:         updatedAt,
 		}
 
 		users = append(users, user)
@@ -164,7 +166,7 @@ func (ur UsersRepository) QueryUpdateUser(user *models.User) *models.ResponseErr
 		}
 	}
 
-	if rowsAffected == 1 {
+	if rowsAffected != 1 {
 		return &models.ResponseError{
 			Message: "User not found",
 			Status:  http.StatusNotFound,

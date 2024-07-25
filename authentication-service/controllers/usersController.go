@@ -41,6 +41,20 @@ func (uc UsersController) HandleSignupUser(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusOK)
 }
 
+func (uc UsersController) HandleConfirmRegistration(w http.ResponseWriter, r *http.Request) {
+	email := r.PathValue("email")
+	verificationToken := r.PathValue("token")
+
+	responseErr := uc.usersService.ConfirmUserRegistration(email, verificationToken)
+
+	if responseErr != nil {
+		http.Error(w, responseErr.Message, responseErr.Status)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func (uc UsersController) HandleGetUser(w http.ResponseWriter, r *http.Request) {
 	email := r.PathValue("email")
 

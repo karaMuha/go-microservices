@@ -38,6 +38,7 @@ func InitHttpServer(db *sql.DB, mqConnection *amqp091.Connection) *http.Server {
 	router := http.NewServeMux()
 
 	router.HandleFunc("POST /signup", usersController.HandleSignupUser)
+	router.HandleFunc("POST /confirm/{email}/{token}", usersController.HandleConfirmRegistration)
 	router.HandleFunc("GET /users/{email}", usersController.HandleGetUser)
 	router.HandleFunc("GET /users", usersController.HandleGetAllUsers)
 	router.HandleFunc("POST /login", usersController.HandleLoginUser)

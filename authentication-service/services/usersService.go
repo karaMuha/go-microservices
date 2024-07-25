@@ -79,6 +79,32 @@ func (us UsersService) SignupUser(user *models.User) *models.ResponseError {
 	return nil
 }
 
+func (us UsersService) ConfirmUserRegistration(email string, verificationToken string) *models.ResponseError {
+	user, respErr := us.GetUserByEmail(email)
+
+	if respErr != nil {
+		return respErr
+	}
+
+	if user == nil {
+		return &models.ResponseError{
+			Message: "User not found",
+			Status:  http.StatusNotFound,
+		}
+	}
+
+	if verificationToken != user.VerificationToken {
+		return &models.ResponseError{
+			Message: "Token does not match",
+			Status:  http.StatusUnauthorized,
+		}
+	}
+
+	user.Active = true
+
+	return us.UpdateUser(user)
+}
+
 func (us UsersService) GetUserByEmail(email string) (*models.User, *models.ResponseError) {
 	return us.usersRepository.QueryGetUserByEmail(email)
 }
