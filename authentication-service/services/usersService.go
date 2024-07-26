@@ -147,6 +147,13 @@ func (us UsersService) LoginUser(email string, password string) (string, *models
 		}
 	}
 
+	if !userInDb.Active {
+		return "", &models.ResponseError{
+			Message: "User is inactive",
+			Status:  http.StatusConflict,
+		}
+	}
+
 	err := bcrypt.CompareHashAndPassword([]byte(userInDb.Password), []byte(password))
 
 	if err != nil {
