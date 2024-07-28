@@ -9,9 +9,11 @@ import (
 
 func InitHttpServer(serverPort string) *http.Server {
 	controller := controllers.NewController()
+	authController := controllers.NewAuthController("http://authentication-service:8080")
 	router := http.NewServeMux()
 
 	router.HandleFunc("GET /ping", controller.HandlePing)
+	router.HandleFunc("POST /signup", authController.HandleSignup)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
