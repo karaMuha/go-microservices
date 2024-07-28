@@ -21,7 +21,6 @@ func InitHttpServer(mongoClient *mongo.Client, mqConnection *amqp091.Connection)
 
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /log", logEntryController.HandleInsertLogEntry)
 	router.HandleFunc("GET /log", logEntryController.HandleGetAllLogEntries)
 	router.HandleFunc("GET /log/{id}", logEntryController.HandleGetOneLogEntry)
 

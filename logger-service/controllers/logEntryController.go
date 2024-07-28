@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"logger/models"
 	"logger/services"
 	"net/http"
 )
@@ -15,25 +14,6 @@ func NewLogEntryController(logEntryService services.LogEntryServiceInterface) *L
 	return &LogEntryController{
 		logEntryService: logEntryService,
 	}
-}
-
-func (lc LogEntryController) HandleInsertLogEntry(w http.ResponseWriter, r *http.Request) {
-	var logEntry models.LogEntry
-	err := json.NewDecoder(r.Body).Decode(&logEntry)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	responseErr := lc.logEntryService.InsertLogEntry(&logEntry)
-
-	if responseErr != nil {
-		http.Error(w, responseErr.Message, responseErr.Status)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
 }
 
 func (lc LogEntryController) HandleGetAllLogEntries(w http.ResponseWriter, r *http.Request) {
