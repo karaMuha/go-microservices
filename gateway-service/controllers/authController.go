@@ -92,7 +92,7 @@ func (ac AuthController) HandleGetUserByEmail(w http.ResponseWriter, r *http.Req
 
 	url := fmt.Sprintf("%s/users/%s", ac.address, email)
 
-	request, err := http.NewRequest("POST", url, nil)
+	request, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -130,7 +130,7 @@ func (ac AuthController) HandleGetUserByEmail(w http.ResponseWriter, r *http.Req
 func (ac AuthController) HandleGetAllUsers(w http.ResponseWriter, r *http.Request) {
 	url := fmt.Sprintf("%s/users", ac.address)
 
-	request, err := http.NewRequest("POST", url, nil)
+	request, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
