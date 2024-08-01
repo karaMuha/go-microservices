@@ -81,13 +81,11 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 		return err
 	}
 
-	forever := make(chan bool)
 	go func() {
 		for data := range messages {
 			go consumer.handleSignupEventPayload(data.Body)
 		}
 	}()
-	<-forever
 
 	return nil
 }
