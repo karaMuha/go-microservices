@@ -3,7 +3,6 @@ package events
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"mailer/models"
 	"mailer/services"
 
@@ -85,20 +84,18 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 	}
 
 	for data := range messages {
-		var eventPayload models.SignupEvent
-		_ = json.Unmarshal(data.Body, &eventPayload)
-
-		go consumer.handleSignupEventPayload(eventPayload)
+		go consumer.handleSignupEventPayload(data)
 	}
 
 	return nil
 }
 
-func (consumer *EventConsumer) handleSignupEventPayload(payload models.SignupEvent) {
-	log.Printf("Signup event for user %s received with verification token %s", payload.Email, payload.VerificationToken)
-	mailMessage := fmt.Sprintf("Please visit localhost:8081/confirm/%s/%s to complete your registration", payload.Email, payload.VerificationToken)
+func (consumer *EventConsumer) handleSignupEventPayload(data amqp091.Delivery) {
+	var eventPayload models.SignupEvent
+	_ = json.Unmarshal(data.Body, &eventPayload)
+	mailMessage := fmt.Sprintf("Please visit localhost:8081/confirm/%s/%s to complete your registration", eventPayload.Email, eventPayload.VerificationToken)
 	mail := &models.Mail{
-		To:      payload.Email,
+		To:      eventPayload.Email,
 		Subject: "Confirm registration",
 		Message: mailMessage,
 	}
