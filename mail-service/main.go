@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	"mailer/events"
-	"mailer/httpserver"
 	"mailer/mailserver"
+	"mailer/services"
 )
 
 func main() {
@@ -19,18 +19,22 @@ func main() {
 
 	defer mqConnection.Close()
 
-	log.Println("Initialize mail server")
+	log.Println("Initializing mail server")
 	mailServer := mailserver.NewMailServer()
 
-	log.Println("Starting http server")
-	httpServer, err := httpserver.InitHttpServer(mailServer, mqConnection)
+	log.Println("Setting up event consumer")
+	mailService := services.NewMailServiceImpl(mailServer)
+
+	eventConsumer, err := events.NewEventConsumer(mqConnection, mailService)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error while initializing event consumer: %v", err)
 	}
 
-	err = httpServer.ListenAndServe()
+	log.Println("Start listening")
+	err = eventConsumer.Listen([]string{"log.INFO", "log.WARNING", "log.ERROR"})
+
 	if err != nil {
-		log.Fatalf("Error while starting http server: %v", err)
+		log.Fatalf("Cannot listen on queue: %v", err)
 	}
 }
