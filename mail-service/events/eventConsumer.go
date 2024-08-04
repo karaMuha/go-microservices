@@ -84,16 +84,12 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 		return err
 	}
 
-	forever := make(chan bool)
-	go func() {
-		for data := range messages {
-			var eventPayload models.SignupEvent
-			_ = json.Unmarshal(data.Body, &eventPayload)
+	for data := range messages {
+		var eventPayload models.SignupEvent
+		_ = json.Unmarshal(data.Body, &eventPayload)
 
-			go consumer.handleSignupEventPayload(eventPayload)
-		}
-	}()
-	<-forever
+		go consumer.handleSignupEventPayload(eventPayload)
+	}
 
 	return nil
 }
