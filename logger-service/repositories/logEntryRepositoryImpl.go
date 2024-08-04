@@ -26,7 +26,7 @@ func (lr *LogEntryRepositoryImpl) QueryInsertLogEntry(entry *models.LogEntry) *m
 	collection := lr.mongoClient.Database("logs").Collection("logs")
 
 	_, err := collection.InsertOne(context.TODO(), models.LogEntry{
-		Name:      entry.Name,
+		Category:  entry.Category,
 		Data:      entry.Data,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),

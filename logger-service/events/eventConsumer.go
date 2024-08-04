@@ -92,8 +92,8 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 
 func (consumer *EventConsumer) handleSignupEventPayload(payload []byte) {
 	logEntry := &models.LogEntry{
-		Name: "Registration",
-		Data: string(payload),
+		Category: "Registration",
+		Data:     string(payload),
 	}
 
 	consumer.logEntryService.InsertLogEntry(logEntry)
