@@ -14,8 +14,8 @@ type EventConsumer struct {
 	mailService services.MailServiceInterface
 }
 
-func NewEventConsumer(connection *amqp091.Connection, mailService services.MailServiceInterface) (EventConsumer, error) {
-	consumer := EventConsumer{
+func NewEventConsumer(connection *amqp091.Connection, mailService services.MailServiceInterface) (*EventConsumer, error) {
+	consumer := &EventConsumer{
 		connection:  connection,
 		mailService: mailService,
 	}
@@ -23,7 +23,7 @@ func NewEventConsumer(connection *amqp091.Connection, mailService services.MailS
 	channel, err := consumer.connection.Channel()
 
 	if err != nil {
-		return EventConsumer{}, err
+		return nil, err
 	}
 
 	err = channel.ExchangeDeclare(
@@ -37,7 +37,7 @@ func NewEventConsumer(connection *amqp091.Connection, mailService services.MailS
 	)
 
 	if err != nil {
-		return EventConsumer{}, err
+		return nil, err
 	}
 
 	return consumer, nil
