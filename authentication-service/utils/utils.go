@@ -20,7 +20,7 @@ var PrivateKey *rsa.PrivateKey
 var Validator *validator.Validate
 
 func ReadPrivateKeyFromFile(filename string) error {
-	file, err := os.Open(filename)
+	file, err := os.Open("./app/" + filename)
 
 	if err != nil {
 		return err
