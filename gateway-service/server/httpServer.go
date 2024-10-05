@@ -16,7 +16,7 @@ func InitHttpServer(serverPort string) *http.Server {
 	router.HandleFunc("GET /ping", controller.HandlePing)
 
 	router.HandleFunc("POST /signup", authController.HandleSignup)
-	router.HandleFunc("POST /confirm", authController.HandleConfirmEmail)
+	router.HandleFunc("POST /confirm/{email}/{token}", authController.HandleConfirmEmail)
 	router.HandleFunc("GET /users/{email}", authController.HandleGetUserByEmail)
 	router.HandleFunc("GET /users", authController.HandleGetAllUsers)
 
