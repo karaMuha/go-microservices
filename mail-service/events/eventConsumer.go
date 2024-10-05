@@ -93,7 +93,7 @@ func (consumer *EventConsumer) Listen(topics []string) error {
 func (consumer *EventConsumer) handleSignupEventPayload(data amqp091.Delivery) {
 	var eventPayload models.SignupEvent
 	_ = json.Unmarshal(data.Body, &eventPayload)
-	mailMessage := fmt.Sprintf("Please visit localhost:8081/confirm/%s/%s to complete your registration", eventPayload.Email, eventPayload.VerificationToken)
+	mailMessage := fmt.Sprintf("Please visit localhost:8080/confirm/%s/%s to complete your registration", eventPayload.Email, eventPayload.VerificationToken)
 	mail := &models.Mail{
 		To:      eventPayload.Email,
 		Subject: "Confirm registration",
