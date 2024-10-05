@@ -56,8 +56,15 @@ func (ac AuthController) HandleSignup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(response.StatusCode)
+	w.Write(body)
 }
 
 func (ac AuthController) HandleConfirmEmail(w http.ResponseWriter, r *http.Request) {
@@ -83,8 +90,15 @@ func (ac AuthController) HandleConfirmEmail(w http.ResponseWriter, r *http.Reque
 	}
 
 	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(response.StatusCode)
+	w.Write(body)
 }
 
 func (ac AuthController) HandleGetUserByEmail(w http.ResponseWriter, r *http.Request) {
@@ -109,22 +123,21 @@ func (ac AuthController) HandleGetUserByEmail(w http.ResponseWriter, r *http.Req
 	}
 
 	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusOK {
-		http.Error(w, "", response.StatusCode)
-		return
-	}
-
-	responseBody, err := io.ReadAll(request.Body)
+	body, err := io.ReadAll(response.Body)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	if response.StatusCode != http.StatusOK {
+		http.Error(w, string(body), response.StatusCode)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(responseBody)
+	w.Write(body)
 }
 
 func (ac AuthController) HandleGetAllUsers(w http.ResponseWriter, r *http.Request) {
@@ -147,22 +160,21 @@ func (ac AuthController) HandleGetAllUsers(w http.ResponseWriter, r *http.Reques
 	}
 
 	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusOK {
-		http.Error(w, "", response.StatusCode)
-		return
-	}
-
-	responseBody, err := io.ReadAll(request.Body)
+	body, err := io.ReadAll(response.Body)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	if response.StatusCode != http.StatusOK {
+		http.Error(w, string(body), response.StatusCode)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(responseBody)
+	w.Write(body)
 }
 
 func (ac AuthController) HandleLogin(w http.ResponseWriter, r *http.Request) {}
