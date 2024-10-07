@@ -177,6 +177,10 @@ func (us UsersService) LoginUser(email string, password string) (string, *models
 }
 
 func (us UsersService) checkPermission(user *models.User) *models.ResponseError {
+	if user.Role == "admin" {
+		return nil
+	}
+
 	userInDb, responseErr := us.usersRepository.QueryGetUserByEmail(user.Email)
 
 	if responseErr != nil {
