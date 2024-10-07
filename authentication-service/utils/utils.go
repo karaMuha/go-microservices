@@ -61,11 +61,12 @@ func HashPassword(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func GenerateJwt(userId string) (string, error) {
+func GenerateJwt(userId string, role string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
-		"userId": userId,
-		"iat":    time.Now().Unix(),
-		"exp":    time.Now().Add(time.Hour).Unix(),
+		"user_id":   userId,
+		"user_role": role,
+		"iat":       time.Now().Unix(),
+		"exp":       time.Now().Add(time.Hour).Unix(),
 	})
 
 	return token.SignedString(privateKey)

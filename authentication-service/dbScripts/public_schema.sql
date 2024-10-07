@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   user_password TEXT NOT NULL,
   is_active BOOLEAN DEFAULT false,
   verification_token TEXT NOT NULL,
+  user_role TEXT DEFAULT "user",
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL
 )

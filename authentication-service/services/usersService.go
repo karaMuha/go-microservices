@@ -163,7 +163,7 @@ func (us UsersService) LoginUser(email string, password string) (string, *models
 		}
 	}
 
-	token, err := utils.GenerateJwt(userInDb.ID)
+	token, err := utils.GenerateJwt(userInDb.ID, userInDb.Role)
 
 	if err != nil {
 		return "", &models.ResponseError{

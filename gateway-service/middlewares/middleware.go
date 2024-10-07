@@ -56,14 +56,14 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		userId, ok := claims["userId"].(string)
+		userId, ok := claims["user_id"].(string)
 
 		if !ok {
 			http.Error(w, "Could not convert user id from jwt claims to string", http.StatusInternalServerError)
 			return
 		}
 
-		userRole, ok := claims["userRole"].(string)
+		userRole, ok := claims["user_role"].(string)
 
 		if !ok {
 			http.Error(w, "Could not convert user role from jwt claims to string", http.StatusInternalServerError)
