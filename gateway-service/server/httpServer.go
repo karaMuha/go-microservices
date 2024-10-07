@@ -15,13 +15,15 @@ func InitHttpServer(serverPort string) *http.Server {
 
 	router.HandleFunc("GET /ping", controller.HandlePing)
 
-	router.HandleFunc("POST /signup", authController.HandleSignup)
-	router.HandleFunc("POST /confirm/{email}/{token}", authController.HandleConfirmEmail)
+	router.HandleFunc("POST /users/signup", authController.HandleSignup)
+	router.HandleFunc("POST /users/confirm/{email}/{token}", authController.HandleConfirmEmail)
 	router.HandleFunc("GET /users/{email}", authController.HandleGetUserByEmail)
 	router.HandleFunc("GET /users", authController.HandleGetAllUsers)
+	router.HandleFunc("POST /users/login", authController.HandleLogin)
+	router.HandleFunc("POST /users/logout", authController.HandleLogout)
 
-	router.HandleFunc("GET /log/{id}", logController.HandleGetLogById)
-	router.HandleFunc("GET /log", logController.HandleGetAllLogs)
+	router.HandleFunc("GET /logs/{id}", logController.HandleGetLogById)
+	router.HandleFunc("GET /logs", logController.HandleGetAllLogs)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},

@@ -21,8 +21,8 @@ func InitHttpServer(mongoClient *mongo.Client, mqConnection *amqp091.Connection)
 
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /log", logEntryController.HandleGetAllLogEntries)
-	router.HandleFunc("GET /log/{id}", logEntryController.HandleGetOneLogEntry)
+	router.HandleFunc("GET /logs", logEntryController.HandleGetAllLogEntries)
+	router.HandleFunc("GET /logs/{id}", logEntryController.HandleGetOneLogEntry)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
