@@ -101,6 +101,7 @@ func (us UsersService) ConfirmUserRegistration(email string, verificationToken s
 	}
 
 	user.Active = true
+	user.VerificationToken = ""
 
 	return us.UpdateUser(user)
 }

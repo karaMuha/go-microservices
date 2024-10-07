@@ -35,7 +35,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		authToken, err := r.Cookie("access_token")
+		authToken, err := r.Cookie("jwt")
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
