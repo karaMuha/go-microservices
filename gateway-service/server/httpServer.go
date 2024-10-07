@@ -2,12 +2,20 @@ package server
 
 import (
 	"gateway/controllers"
+	"gateway/utils"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/rs/cors"
 )
 
 func InitHttpServer(serverPort string) *http.Server {
+	err := utils.ReadPrivateKeyFromFile(os.Getenv("PRIVATE_KEY_PATH"))
+	if err != nil {
+		log.Fatalf("Error while reading private key: %v", err)
+	}
+
 	controller := controllers.NewController()
 	authController := controllers.NewAuthController("http://authentication-service:8080")
 	logController := controllers.NewLogController("http://logger-service:8080")

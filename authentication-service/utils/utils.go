@@ -14,13 +14,13 @@ import (
 )
 
 // used to sign jwt token
-var PrivateKey *rsa.PrivateKey
+var privateKey *rsa.PrivateKey
 
 // used to validate reqeust body
 var Validator *validator.Validate
 
 func ReadPrivateKeyFromFile(filename string) error {
-	file, err := os.Open("./app/" + filename)
+	file, err := os.Open(filename)
 
 	if err != nil {
 		return err
@@ -37,12 +37,18 @@ func ReadPrivateKeyFromFile(filename string) error {
 	}
 
 	data, _ := pem.Decode(buffer)
-	PrivateKey, err = x509.ParsePKCS1PrivateKey(data.Bytes)
+	key, err := x509.ParsePKCS8PrivateKey(data.Bytes)
+
 	if err != nil {
 		return err
 	}
 
-	return nil
+	if key, ok := key.(*rsa.PrivateKey); ok {
+		privateKey = key
+		return nil
+	}
+
+	return errors.New("error while reading private key")
 }
 
 func HashPassword(password string) (string, error) {
@@ -62,7 +68,7 @@ func GenerateJwt(userId string) (string, error) {
 		"exp":    time.Now().Add(time.Hour).Unix(),
 	})
 
-	return token.SignedString(PrivateKey)
+	return token.SignedString(privateKey)
 }
 
 func VerifyJwt(jwtToken string) (*jwt.Token, error) {
@@ -71,7 +77,7 @@ func VerifyJwt(jwtToken string) (*jwt.Token, error) {
 		if !ok {
 			return nil, errors.New("unexpected signing method")
 		}
-		return PrivateKey.Public(), nil
+		return privateKey.Public(), nil
 	})
 
 	if err != nil {
