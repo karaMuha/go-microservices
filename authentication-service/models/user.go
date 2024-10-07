@@ -10,6 +10,7 @@ type User struct {
 	Password          string    `json:"password" validate:"required"`
 	Active            bool      `json:"active"`
 	VerificationToken string    `json:"verficationToken"`
+	Role              string    `json:"role"`
 	CreatedAt         time.Time `json:"createdAt"`
 	UpdatedAt         time.Time `json:"updatedAt"`
 }

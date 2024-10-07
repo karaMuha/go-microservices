@@ -1,6 +1,8 @@
 package utils
 
-import "github.com/vodkaslime/wildcard"
+import (
+	"github.com/vodkaslime/wildcard"
+)
 
 var protectedRoutes map[string][]string
 var matcher *wildcard.Matcher
@@ -21,10 +23,14 @@ func SetProtectedRoutes() {
 
 func IsProtectedRoute(endpoint string) ([]string, error) {
 	for i, v := range protectedRoutes {
-		if result, err := matcher.Match(i, endpoint); err == nil && result {
-			return v, nil
-		} else if err != nil {
+		result, err := matcher.Match(i, endpoint)
+
+		if err != nil {
 			return nil, err
+		}
+
+		if result {
+			return v, nil
 		}
 	}
 

@@ -15,6 +15,6 @@ FROM alpine:latest
 
 RUN mkdir /app
 
-COPY --from=builder /app/authenticationService /app/id_rsa_priv.pem /app/
+COPY --from=builder /app/authenticationService /app/private-key.pem /app/
 
 CMD [ "/app/authenticationService" ]
