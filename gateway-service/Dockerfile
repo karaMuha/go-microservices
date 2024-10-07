@@ -15,6 +15,6 @@ FROM alpine:latest
 
 RUN mkdir /app
 
-COPY --from=builder /app/gatewayService /app
+COPY --from=builder /app/gatewayService /app/private-key.pem /app/
 
 CMD [ "/app/gatewayService" ]

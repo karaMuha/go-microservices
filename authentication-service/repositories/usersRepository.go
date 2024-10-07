@@ -48,6 +48,7 @@ func (ur UsersRepository) QueryGetAllUsers() ([]*models.User, *models.ResponseEr
 			last_name,
 			is_active,
 			verification_token,
+			user_role,
 			created_at,
 			updated_at
 		FROM
@@ -64,12 +65,12 @@ func (ur UsersRepository) QueryGetAllUsers() ([]*models.User, *models.ResponseEr
 	defer rows.Close()
 
 	users := make([]*models.User, 0)
-	var id, email, firstName, lastName, verficationToken string
+	var id, email, firstName, lastName, verficationToken, role string
 	var active bool
 	var createdAt, updatedAt time.Time
 
 	for rows.Next() {
-		err := rows.Scan(&id, &email, &firstName, &lastName, &active, &verficationToken, &createdAt, &updatedAt)
+		err := rows.Scan(&id, &email, &firstName, &lastName, &active, &verficationToken, &role, &createdAt, &updatedAt)
 		if err != nil {
 			return nil, &models.ResponseError{
 				Message: err.Error(),
@@ -83,6 +84,7 @@ func (ur UsersRepository) QueryGetAllUsers() ([]*models.User, *models.ResponseEr
 			LastName:          lastName,
 			Active:            active,
 			VerificationToken: verficationToken,
+			Role:              role,
 			CreatedAt:         createdAt,
 			UpdatedAt:         updatedAt,
 		}
@@ -110,6 +112,7 @@ func (ur UsersRepository) QueryGetUserByEmail(email string) (*models.User, *mode
 			user_password,
 			is_active,
 			verification_token,
+			user_role,
 			created_at,
 			updated_at
 		FROM
@@ -119,7 +122,7 @@ func (ur UsersRepository) QueryGetUserByEmail(email string) (*models.User, *mode
 	row := ur.dbHandler.QueryRow(query, email)
 
 	var user models.User
-	err := row.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Password, &user.Active, &user.VerificationToken, &user.CreatedAt, &user.UpdatedAt)
+	err := row.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Password, &user.Active, &user.VerificationToken, &user.Role, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -145,10 +148,11 @@ func (ur UsersRepository) QueryUpdateUser(user *models.User) *models.ResponseErr
 			first_name = $2,
 			last_name = $3,
 			is_active = $4,
-			updated_at = $5
+			user_role = $5,
+			updated_at = $6
 		WHERE
-			id = $6`
-	row, err := ur.dbHandler.Exec(query, user.Email, user.FirstName, user.LastName, user.Active, time.Now(), user.ID)
+			id = $7`
+	row, err := ur.dbHandler.Exec(query, user.Email, user.FirstName, user.LastName, user.Active, user.Role, time.Now(), user.ID)
 
 	if err != nil {
 		return &models.ResponseError{

@@ -2,12 +2,23 @@ package server
 
 import (
 	"gateway/controllers"
+	"gateway/middlewares"
+	"gateway/utils"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/rs/cors"
 )
 
 func InitHttpServer(serverPort string) *http.Server {
+	err := utils.ReadPrivateKeyFromFile(os.Getenv("PRIVATE_KEY_PATH"))
+	if err != nil {
+		log.Fatalf("Error while reading private key: %v", err)
+	}
+
+	utils.SetProtectedRoutes()
+
 	controller := controllers.NewController()
 	authController := controllers.NewAuthController("http://authentication-service:8080")
 	logController := controllers.NewLogController("http://logger-service:8080")
@@ -38,6 +49,6 @@ func InitHttpServer(serverPort string) *http.Server {
 
 	return &http.Server{
 		Addr:    serverPort,
-		Handler: handler,
+		Handler: middlewares.AuthMiddleware(handler),
 	}
 }

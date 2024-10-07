@@ -6,3 +6,6 @@ setup:
 	openssl genrsa -out private-key.pem 4096; \
 	cp -f private-key.pem authentication-service; \
 	cp -f private-key.pem gateway-service
+
+start:
+	docker-compose up -d
