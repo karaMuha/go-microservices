@@ -20,21 +20,21 @@ func InitHttpServer(serverPort string) *http.Server {
 	utils.SetProtectedRoutes()
 
 	controller := controllers.NewController()
-	authController := controllers.NewAuthController("http://authentication-service:8080")
-	logController := controllers.NewLogController("http://logger-service:8080")
+	usersController := controllers.NewUsersController("http://authentication-service:8080")
+	logsController := controllers.NewLogController("http://logger-service:8080")
 	router := http.NewServeMux()
 
 	router.HandleFunc("GET /ping", controller.HandlePing)
 
-	router.HandleFunc("POST /users/signup", authController.HandleSignup)
-	router.HandleFunc("POST /users/confirm/{email}/{token}", authController.HandleConfirmEmail)
-	router.HandleFunc("GET /users/{email}", authController.HandleGetUserByEmail)
-	router.HandleFunc("GET /users", authController.HandleGetAllUsers)
-	router.HandleFunc("POST /users/login", authController.HandleLogin)
-	router.HandleFunc("POST /users/logout", authController.HandleLogout)
+	router.HandleFunc("POST /users/signup", usersController.HandleSignup)
+	router.HandleFunc("POST /users/confirm/{email}/{token}", usersController.HandleConfirmEmail)
+	router.HandleFunc("GET /users/{email}", usersController.HandleGetUserByEmail)
+	router.HandleFunc("GET /users", usersController.HandleGetAllUsers)
+	router.HandleFunc("POST /users/login", usersController.HandleLogin)
+	router.HandleFunc("POST /users/logout", usersController.HandleLogout)
 
-	router.HandleFunc("GET /logs/{id}", logController.HandleGetLogById)
-	router.HandleFunc("GET /logs", logController.HandleGetAllLogs)
+	router.HandleFunc("GET /logs/{id}", logsController.HandleGetLogById)
+	router.HandleFunc("GET /logs", logsController.HandleGetAllLogs)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
