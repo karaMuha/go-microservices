@@ -7,19 +7,21 @@ import (
 	"gateway/models"
 	"io"
 	"net/http"
+	"strings"
+	"time"
 )
 
-type AuthController struct {
+type UsersController struct {
 	address string
 }
 
-func NewAuthController(address string) *AuthController {
-	return &AuthController{
+func NewUsersController(address string) *UsersController {
+	return &UsersController{
 		address: address,
 	}
 }
 
-func (ac AuthController) HandleSignup(w http.ResponseWriter, r *http.Request) {
+func (ac UsersController) HandleSignup(w http.ResponseWriter, r *http.Request) {
 	var signupUser models.SignupUser
 	err := json.NewDecoder(r.Body).Decode(&signupUser)
 
@@ -67,7 +69,7 @@ func (ac AuthController) HandleSignup(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func (ac AuthController) HandleConfirmEmail(w http.ResponseWriter, r *http.Request) {
+func (ac UsersController) HandleConfirmEmail(w http.ResponseWriter, r *http.Request) {
 	email := r.PathValue("email")
 	verificationToken := r.PathValue("token")
 
@@ -101,7 +103,7 @@ func (ac AuthController) HandleConfirmEmail(w http.ResponseWriter, r *http.Reque
 	w.Write(body)
 }
 
-func (ac AuthController) HandleGetUserByEmail(w http.ResponseWriter, r *http.Request) {
+func (ac UsersController) HandleGetUserByEmail(w http.ResponseWriter, r *http.Request) {
 	email := r.PathValue("email")
 
 	url := fmt.Sprintf("%s/users/%s", ac.address, email)
@@ -140,7 +142,7 @@ func (ac AuthController) HandleGetUserByEmail(w http.ResponseWriter, r *http.Req
 	w.Write(body)
 }
 
-func (ac AuthController) HandleGetAllUsers(w http.ResponseWriter, r *http.Request) {
+func (ac UsersController) HandleGetAllUsers(w http.ResponseWriter, r *http.Request) {
 	url := fmt.Sprintf("%s/users", ac.address)
 
 	request, err := http.NewRequest("GET", url, nil)
@@ -177,6 +179,61 @@ func (ac AuthController) HandleGetAllUsers(w http.ResponseWriter, r *http.Reques
 	w.Write(body)
 }
 
-func (ac AuthController) HandleLogin(w http.ResponseWriter, r *http.Request) {}
+func (ac UsersController) HandleLogin(w http.ResponseWriter, r *http.Request) {
+	url := fmt.Sprintf("%s/login", ac.address)
+	request, err := http.NewRequest("POST", url, r.Body)
 
-func (ac AuthController) HandleLogout(w http.ResponseWriter, r *http.Request) {}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	client := &http.Client{}
+
+	response, err := client.Do(request)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if response.StatusCode != http.StatusOK {
+		http.Error(w, string(body), response.StatusCode)
+		return
+	}
+
+	cookies := response.Cookies()
+	var jwtCookie *http.Cookie
+
+	for _, v := range cookies {
+		if strings.EqualFold(v.Name, "jwt") {
+			jwtCookie = v
+		}
+	}
+
+	if jwtCookie == nil {
+		http.Error(w, "No jwt cookie present", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, jwtCookie)
+	w.WriteHeader(response.StatusCode)
+}
+
+func (ac UsersController) HandleLogout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:    "jwt",
+		Value:   "",
+		Expires: time.Now(),
+	})
+
+	w.WriteHeader(http.StatusOK)
+}
