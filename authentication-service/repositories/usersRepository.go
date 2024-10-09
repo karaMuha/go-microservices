@@ -170,7 +170,7 @@ func (ur UsersRepository) QueryUpdateUser(user *models.User) *models.ResponseErr
 		}
 	}
 
-	if rowsAffected != 1 {
+	if rowsAffected == 0 {
 		return &models.ResponseError{
 			Message: "User not found",
 			Status:  http.StatusNotFound,
@@ -204,7 +204,7 @@ func (ur UsersRepository) QueryDeleteUser(id string) *models.ResponseError {
 		}
 	}
 
-	if rowsAffected == 1 {
+	if rowsAffected == 0 {
 		return &models.ResponseError{
 			Message: "User not found",
 			Status:  http.StatusNotFound,
